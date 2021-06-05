@@ -53,39 +53,58 @@ def store_user(request, user):
     'email': user['mail'] if (user['mail'] != None) else user['userPrincipalName']
   }
 
-def get_token(request):
-  token = request.session['oauth_token']
-  if token != None:
-    # Check expiration
-    now = time.time()
-    # Subtract 5 minutes from expiration to account for clock skew
-    expire_time = token['expires_at'] - 300
-    if now >= expire_time:
-      # Refresh the token
-      aad_auth = OAuth2Session(settings['app_id'],
-        token = token,
-        scope=settings['scopes'],
-        redirect_uri=settings['redirect'])
-
-      refresh_params = {
-        'client_id': settings['app_id'],
-        'client_secret': settings['app_secret'],
-      }
-      new_token = aad_auth.refresh_token(token_url, **refresh_params)
-
-      # Save new token
-      store_token(request, new_token)
-
-      # Return new access token
-      return new_token
-
-    else:
-      # Token still valid, just return it
-      return token
-
 def remove_user_and_token(request):
   if 'oauth_token' in request.session:
     del request.session['oauth_token']
 
   if 'user' in request.session:
     del request.session['user']
+
+def get_token(request):
+  if 'oauth_token' in request.session:
+    token = request.session['oauth_token']
+    if token != None:
+      # Check expiration
+      now = time.time()
+      # Subtract 5 minutes from expiration to account for clock skew
+      expire_time = token['expires_at'] - 300
+      if now >= expire_time:
+        # Refresh the token
+        aad_auth = OAuth2Session(settings['app_id'],
+          token = token,
+          scope=settings['scopes'],
+          redirect_uri=settings['redirect'])
+
+        refresh_params = {
+          'client_id': settings['app_id'],
+          'scope': settings['scopes'],
+          'client_secret': settings['app_secret'],
+        }
+        new_token = aad_auth.refresh_token(token_url, **refresh_params)
+
+        # Save new token
+        store_token(request, new_token)
+
+        # Return new access token
+        return new_token
+
+      else:
+        # Token still valid, just return it
+        return token
+  else:
+    remove_user_and_token(request)
+    raise Exception("No token")
+
+def initialize_context(request):
+  context = {}
+
+  # Check for any errors in the session
+  error = request.session.pop('flash_error', None)
+
+  if error != None:
+    context['errors'] = []
+    context['errors'].append(error)
+
+  # Check for user in the session
+  context['user'] = request.session.get('user', {'is_authenticated': False})
+  return context

@@ -7,3 +7,16 @@ body {
     word-break: break-all;
     white-space: pre-wrap;
   }
+
+  .clickable{
+    cursor: pointer;
+    display:block;
+  }
+
+.row:hover {
+  background-color: #cccccc;
+}
+
+.cell:hover {
+  background-color: #e5e5e5;
+}

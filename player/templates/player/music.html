@@ -1,0 +1,59 @@
+{% extends "player/layout.html" %}
+{% block content %}
+<h1>Music</h1>
+<!-- {{data}} -->
+{{tags.id}}
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col">Last modified</th>
+      <th scope="col">ID</th>
+      <th scope="col">Preview</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>abg</td>
+      <td>dbg</td>
+      <td>{{ file.id }}</td>
+      <!-- <td>
+        <audio controls>
+          <source src="{{file.microsoft.graph.downloadUrl}}" type="audio/mpeg">
+        </audio>
+      </td> -->
+  </tr>
+  {% if dirs %}
+  {% for dir in dirs %}
+    <tr>
+        <td>{{ dir.name }}</td>
+        <td>{{ dir.id }}</td>
+        <td>{{ dir.lastModifiedDate }}</td>
+        <!-- <td>
+          <audio controls>
+            <source src="{{file.microsoft.graph.downloadUrl}}" type="audio/mpeg">
+          </audio>
+        </td>
+    </tr>
+  {%endfor%}
+{% endif %} -->
+    {% if tags %}
+      {% for tag in tags %}
+        <tr>
+            <td><a href="{{ tag.microsoftgraphdownloadUrl }}">{{ tag.audio.title }}</a></td>
+            <td><audio controls>
+              <source src="{{ tag.microsoftgraphdownloadUrl }}" type="audio/mpeg">
+            </audio>
+            </td>
+            <td>{{ file.id }}</td>
+            <!-- <td>
+              <audio controls>
+                <source src="{{file.microsoft.graph.downloadUrl}}" type="audio/mpeg">
+              </audio>
+            </td>
+        </tr>
+      {%endfor%}
+    {% endif %}
+  </tbody>
+</table>
+{% endblock %}
