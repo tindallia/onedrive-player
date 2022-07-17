@@ -1,5 +1,6 @@
+import math
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from player.auth_helper import get_sign_in_url, get_token_from_code, store_token, store_user, remove_user_and_token, get_token
 from player.graph_helper import *
@@ -79,6 +80,17 @@ def calendar(request):
 
   return render(request, 'player/calendar.html', context)
 
+def convertTime(data):
+  for item in data.values():
+    realDuration = math.floor(int(item['metadata']['duration'])/1000)
+    seconds = realDuration % 60
+    minutes = int(realDuration / 60)
+    if minutes > 60:
+      hours = int(minutes / 60)
+      minutes %= 60
+      item['metadata']['duration'] = str(hours)+":"+str(minutes)+":"+str(seconds)
+    
+    item['metadata']['duration'] = str(minutes)+":"+str(seconds)
 def music(request):
   context = initialize_context(request)
 
@@ -89,19 +101,35 @@ def music(request):
 
   directories = get_music(token)
 
+  # directories = directories['value']
+
   # context['dirs'] = directories['value']
 
   if directories:
-    music = get_dirs(token,"9523333609373617!74159")
-    for directory in directories['value']:
-      music = get_dirs(token,directory['id'])
-    # music = parseFile(token)
-    # music['microsoftgraphdownloadUrl']=music.pop('@microsoft.graph.downloadUrl')
-    # context['tags'] = [music]
-  # else:
-  context['errors'] = [
-    { 'message': 'Folders', 'debug': format(context)}
-  ]
+    directories = parse_dirs(directories['value'])
+  
+  # print("Traversing subdirs")
+  # print(directories)
+  traverseSubdirs(token, directories)
+  # print(directories)
 
-  return render(request, 'player/music.html', context)
+  finalList = dict()
+  finalList = listMusic(directories, finalList, 0)
+
+  # convertTime(directories)
+
+  # context['dirs'] = directories
+
+  # for dir in context['dirs'].values():
+  #   print(dir)
+
+  # allDirs = temp
+
+
+  # for index in allDirs.values()['subdirectories']:
+  #   print(index)
+  
+  return JsonResponse((finalList), safe=False)
+
+  # return render(request, 'player/music.html', context)
   # return HttpResponse(context['tags'],content_type="application/json")
