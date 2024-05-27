@@ -32,7 +32,7 @@ def get_music(token):
   graph_client = OAuth2Session(token=token)
 
   #debug
-  music = graph_client.get('{0}/me/drive/items/9523333609373617!87289/children'.format(graph_url))
+  music = graph_client.get('{0}/me/drive/items/9523333609373617!78780/children'.format(graph_url))
 
   return music.json()
 
@@ -73,60 +73,46 @@ def parse_dirs(dir):
     allDirs[index] = temp
     index+=1
 
-  return allDirs
+  return allDirs.copy()
 
 #TODO: fix this function to ignore non-audio files
-def traverseSubdirs(token, dir):
-  for dirs in dir.values():
+def traverseSubdirs(token, dir, depth = 0, deleteBuf = {}):
+  toDelete = []
+  for key, dirs in dir.items():
     if 'childCount' in dirs and dirs['childCount'] != 0:
       dirs['subdirectories'] = parse_dirs(get_dirs(token, dirs['id'])['value'])
-      for index in dirs['subdirectories']:
-          traverseSubdirs(token, dirs['subdirectories'])
-      
-    #if the subdir doesn't contain any audio files....
-    if ('subdirectories' in dirs and dirs['subdirectories'] == {}) or "metadata" not in dirs:
-      print("This should be dropped")
-      print(dirs)
-      # return
-      # index['subdirContents'] = parse_dirs(get_dirs(token,index['id'])['value'])
-      # print(index)
-
+      if dirs['subdirectories'] == {}:
+        print("This should be dropped")
+        toDelete.append(key)
+      traverseSubdirs(token, dirs['subdirectories'], depth + 1)
     
-  # return modifDir
+  if len(toDelete) != 0:
+    deleteBuf[depth] = toDelete
+  if depth+1 in deleteBuf.keys():
+    for i in deleteBuf[depth+1]:
+      del(dirs['subdirectories'][i])
+      dirs['childCount'] -= 1
 
-def listMusic(parsedDirs, finalList, counter):
-  
+def listMusic(parsedDirs, finalList, counter = 0):
   for index in parsedDirs.values():
     if 'folderName' in index:
       print(index['folderName'])
+      label = index['folderName']
+    # elif 'metadata' in index:
+    #   print(index['metadata']['title'])
+    else:
+      label = counter
     # keep go deeper until end of subdirectory reached
     if 'subdirectories' in index:
       if index.get('subdirectories') != {}:
         finalList[counter] = {}
         finalList[counter].update(listMusic(index['subdirectories'], finalList, counter))
-        print(finalList)
+        # print(finalList)
         counter+=1
       else:
         continue
     else:
       return parsedDirs
 
+
   return finalList
-
-# def parseFile(token, itemId):
-#   graph_client = OAuth2Session(token=token)
-
-#   reqPath = '{0}/me/drive/items/'+ itemId + '/'
-
-#   music = graph_client.get(reqPath.format(graph_url))
-  
-#   return music.json()
-
-def appendToList(newData, filename="tempJson.json"):
-  with open(filename,'w') as f:
-    file_data=json.load(f)
-    file_data.update(newData)
-    f.seek(0)
-    json.dump(filename,f,indent=4)
-  
-  return filename

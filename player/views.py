@@ -88,9 +88,10 @@ def convertTime(data):
     if minutes > 60:
       hours = int(minutes / 60)
       minutes %= 60
-      item['metadata']['duration'] = str(hours)+":"+str(minutes)+":"+str(seconds)
+      item['metadata']['duration'] = str(hours) + ":" + str(minutes) + ":" + str(seconds).zfill(2)
     
-    item['metadata']['duration'] = str(minutes)+":"+str(seconds)
+    item['metadata']['duration'] = str(minutes) + ":" + str(seconds).zfill(2)
+
 def music(request):
   context = initialize_context(request)
 
@@ -101,10 +102,6 @@ def music(request):
 
   directories = get_music(token)
 
-  # directories = directories['value']
-
-  # context['dirs'] = directories['value']
-
   if directories:
     directories = parse_dirs(directories['value'])
   
@@ -113,15 +110,17 @@ def music(request):
   traverseSubdirs(token, directories)
   # print(directories)
 
-  finalList = dict()
-  finalList = listMusic(directories, finalList, 0)
+  # finalList = dict()
+  # while 'metadata' not in finalList.values():
+  directories = listMusic(directories, directories)
 
-  # convertTime(directories)
+  for key, value in directories.items():
+    convertTime(value)
 
-  # context['dirs'] = directories
-
-  # for dir in context['dirs'].values():
-  #   print(dir)
+  context['dirs'] = directories
+  test = list()
+  for dir in context['dirs'].values():
+    print(dir)
 
   # allDirs = temp
 
@@ -129,7 +128,9 @@ def music(request):
   # for index in allDirs.values()['subdirectories']:
   #   print(index)
   
-  return JsonResponse((finalList), safe=False)
+  # return JsonResponse((finalList), safe=False)
 
-  # return render(request, 'player/music.html', context)
+  # raise Exception("Context")
+
+  return render(request, 'player/music.html', context)
   # return HttpResponse(context['tags'],content_type="application/json")

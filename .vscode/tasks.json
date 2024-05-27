@@ -1,0 +1,63 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Run Server",
+        "type": "shell",
+        "command": "python",
+        "args": [
+          "manage.py", "runserver"
+        ],
+        "group": {
+          "kind": "build",
+          "isDefault": false
+        },
+        "dependsOn": "venvSetup",
+        "dependsOrder": "sequence",
+        "hide": true
+      },
+      {
+        "label": "Setup virtual environment",
+        "type": "shell",
+        "command": "python -m venv .",
+        "group": {
+            "kind": "none",
+            "isDefault": false
+        },
+        "presentation": {
+          "panel": "new"
+        },
+        "hide": true
+      },
+      {
+        "label": "Install requirements",
+        "type": "shell",
+        "command": "python -m pip install -r requirements.txt",
+        "problemMatcher": [],
+        "group": {
+            "kind": "none",
+            "isDefault": false
+        },
+        "presentation": {
+            "echo": true,
+            "reveal": "silent",
+            "focus": false,
+            "panel": "new",
+            "showReuseMessage": true,
+            "clear": true
+        },
+        "hide": true
+      },
+      {
+        "label": "Initialize workspace & run server",
+        "type": "shell",
+        "dependsOn":["Setup virtual environment", "Install requirements", "Run Server"],
+        "dependsOrder": "sequence",
+        "hide": false,
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+      }
+    ]
+  }

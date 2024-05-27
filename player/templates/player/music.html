@@ -3,7 +3,7 @@
 <h1>Music</h1>
 <!-- {{data}} -->
 {{tags.id}}
-<table class="table">
+<table class="table" id="musicTable">
   <thead>
     <tr>
       <th scope="col">#</th>
@@ -17,18 +17,19 @@
   <tbody>
   {% if dirs %}
   {% for dir in dirs.values %}
+  <tr></tr>
+  {% for items in dir.values %}
     <tr>
-        <td>{{ dir.metadata.track }}</td>
-        <td>{{ dir.metadata.title }}</td>
-        <td>{{ dir.metadata.artist }}</td>
-        <td>{{ dir.metadata.album }}</td>
-        <td>{{ dir.metadata.duration }}</td>
-        <td>
-          <audio controls>
-            <source src="{{dir.url}}" type="audio/mpeg">
-          </audio>
+        <td>{{ items.metadata.track }}</td>
+        <td>{{ items.metadata.title }}</td>
+        <td>{{ items.metadata.artist }}</td>
+        <td>{{ items.metadata.album }}</td>
+        <td>{{ items.metadata.duration }}</td>
+        <td>zz</td>
+          
         </td>
     </tr>
+  {%endfor%}
   {%endfor%}
 {% endif %}
     {% if tags %}
@@ -40,7 +41,7 @@
             </audio>
             </td>
             <td>{{ file.id }}</td>
-            <!-- <td>
+            <td>
               <audio controls>
                 <source src="{{file.microsoft.graph.downloadUrl}}" type="audio/mpeg">
               </audio>
@@ -50,4 +51,19 @@
     {% endif %}
   </tbody>
 </table>
+
+<script type="module">
+  import { createApp } from 'vue'
+
+  createApp({
+    data() {
+      return {
+        message: 'Hello Vue!',
+        data: "{{context.dirs}}"
+      }
+    },
+    delimiters: ['${', '}}']
+  }).mount('#musicTable')
+</script>
+
 {% endblock %}

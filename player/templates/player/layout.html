@@ -8,7 +8,15 @@
       crossorigin="anonymous">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.13.0/css/all.css">
     {% load static %}
-    <link rel="stylesheet" href="{% static "player/app.css" %}">
+    <link rel="stylesheet" href="{% static 'player/app.css' %}">
+    <!-- <script src="https://unpkg.com/vue@3"></script> -->
+    <script type="importmap">
+      {
+        "imports": {
+          "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js"
+        }
+      }
+    </script>
   </head>
 
   <body>
@@ -77,6 +85,12 @@
       {% endif %}
       {% block content %}{% endblock %}
     </main>
+
+    <footer id="footer" class="navbar navbar-expand-md navbar-dark fixed-bottom bg-dark">
+      <audio controls id="mainPlayer">
+        <source src="https://public.bn.files.1drv.com/y4mPrFFyEpBpAMI-_-QB7Jp-x4tuZB-nyTUpvtbCnnY1sylHREjGowQRQVfu8sDZzEAyZnp-jqvMo18itcZFioFuMkJbRHi4zL6NgXHTTmFt1R-DrQqZKy0XXuKA5sjmUc8XigUmfyenrOTq41eJ6ogKStMLTlRJq2lIyLfLnXN7u5OXtJ7dzRoDva-lZQB9NzXxLpdJWypHis42CAOELbrZS9QLMm5cJuZ8SagN4gdwDU" type="audio/mpeg">
+      </audio>
+    </footer>
 
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
       integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
